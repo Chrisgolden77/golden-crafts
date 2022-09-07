@@ -39,8 +39,7 @@ const PreviewAction = props => {
       window.open(
         `${frontendURL}/api/preview?token=HULL&type=${
           props.type
-        }&slug=${slug || ''}`
-        
+        }&slug=${slug.current || ''}`
       )
     }
   }
