@@ -40,6 +40,7 @@ const PreviewAction = props => {
         `${frontendURL}/api/preview?token=HULL&type=${
           props.type
         }&slug=${slug || ''}`
+        
       )
     }
   }
