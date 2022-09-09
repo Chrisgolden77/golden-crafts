@@ -1,13 +1,13 @@
-import React from 'react'
-import Error from 'next/error'
+import React from 'react';
+import Error from 'next/error';
 
-import { getStaticPage, queries } from '@data'
+import { getStaticPage, queries } from '@data';
 
-import Layout from '@components/layout'
-import { Module } from '@components/modules'
+import Layout from '@components/layout';
+import { Module } from '@components/modules';
 
 const NotFoundPage = ({ data }) => {
-  const { site, menus, page } = data
+  const { site, menus, page } = data;
 
   if (!page) {
     return (
@@ -15,7 +15,7 @@ const NotFoundPage = ({ data }) => {
         title={`"Error Page (404)" is not set in Sanity, or the page data is missing`}
         statusCode="Data Error"
       />
-    )
+    );
   }
 
   return (
@@ -30,8 +30,8 @@ const NotFoundPage = ({ data }) => {
         <Module key={key} module={module} />
       ))}
     </Layout>
-  )
-}
+  );
+};
 
 export async function getStaticProps({ preview, previewData }) {
   const pageData = await getStaticPage(
@@ -48,13 +48,14 @@ export async function getStaticProps({ preview, previewData }) {
       active: preview,
       token: previewData?.token,
     }
-  )
+  );
 
   return {
     props: {
       data: pageData,
     },
-  }
+    revalidate: 10,
+  };
 }
 
-export default NotFoundPage
+export default NotFoundPage;
