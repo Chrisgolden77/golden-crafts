@@ -11,7 +11,7 @@ import { Module } from '@components/modules';
 
 const Page = ({ data }) => {
   const router = useRouter();
-
+  console.log('DATA: ', data);
   if (!router.isFallback && !data) {
     return <NotFoundPage statusCode={404} />;
   }
@@ -37,6 +37,7 @@ export async function getStaticProps({ params, preview, previewData }) {
     active: preview,
     token: previewData?.token,
   });
+  console.log('page data: ', pageData);
 
   return {
     props: {
