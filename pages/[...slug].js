@@ -11,7 +11,7 @@ import { Module } from '@components/modules';
 
 const Page = ({ data }) => {
   const router = useRouter();
-  console.log('DATA: ', data);
+
   if (!router.isFallback && !data) {
     return <NotFoundPage statusCode={404} />;
   }
@@ -37,24 +37,20 @@ export async function getStaticProps({ params, preview, previewData }) {
     active: preview,
     token: previewData?.token,
   });
-  console.log('page data: ', pageData);
 
   return {
     props: {
       data: pageData,
     },
-    revalidate: 10,
   };
 }
 
 export async function getStaticPaths() {
   const allPages = await getAllDocSlugs('page');
-  console.log("GET STATIC PATHS ", allPages);
   return {
     paths:
-    allPages?.map((page) => {
-      let slugs = page.slug.current.split('/').filter((e) => e);
-      console.log("GET STATIC PATHS Slugs ", slugs);
+      allPages?.map((page) => {
+        let slugs = page.slug.current.split('/').filter((e) => e);
         return {
           params: {
             slug: slugs,

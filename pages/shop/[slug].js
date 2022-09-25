@@ -1,13 +1,13 @@
-import React from 'react'
+import React from 'react';
 
-import { getCategory, getAllDocSlugs } from '@data'
+import { getCategory, getAllDocSlugs } from '@data';
 
-import Layout from '@components/layout'
-import { Module } from '@components/modules'
+import Layout from '@components/layout';
+import { Module } from '@components/modules';
 
 const CategoryPage = ({ data }) => {
-  const { site, page } = data
-
+  const { site, page } = data;
+  console.log('CATEGORY ', data);
   return (
     <Layout site={site} page={page}>
       {page.modules?.map((module, key) => (
@@ -19,37 +19,35 @@ const CategoryPage = ({ data }) => {
         />
       ))}
     </Layout>
-  )
-}
+  );
+};
 
 export async function getStaticProps({ params, preview, previewData }) {
   const categoryData = await getCategory(params.slug, {
     active: preview,
     token: previewData?.token,
-  })
+  });
 
   return {
     props: {
       data: categoryData,
     },
-    revalidate: 10,
-  }
+  };
 }
 
 export async function getStaticPaths() {
-  const allCategorys = await getAllDocSlugs('category')
-
+  const allCategorys = await getAllDocSlugs('category');
   return {
     paths:
       allCategorys?.map((category) => {
         return {
           params: {
-            slug: category.slug,
+            slug: category.slug.current ?? category.slug,
           },
-        }
+        };
       }) || [],
     fallback: false,
-  }
+  };
 }
 
-export default CategoryPage
+export default CategoryPage;

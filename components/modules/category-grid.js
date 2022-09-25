@@ -1,5 +1,11 @@
-import React, { useState, useRef, useMemo, useCallback, useEffect } from 'react'
-import cx from 'classnames'
+import React, {
+  useState,
+  useRef,
+  useMemo,
+  useCallback,
+  useEffect,
+} from 'react';
+import cx from 'classnames';
 
 import {
   useParams,
@@ -8,34 +14,40 @@ import {
   sortAsc,
   sortDesc,
   clampRange,
-} from '@lib/helpers'
+} from '@lib/helpers';
 
-import { useSiteContext } from '@lib/context'
+import { useSiteContext } from '@lib/context';
 
-import CategoryFilter from '@components/category-filter'
-import CategoryFilterChips from '@components/category-filter-chips'
-import CategorySort from '@components/category-sort'
-import ProductCard from '@components/product-card'
-import BlockContent from '@components/block-content'
+import CategoryFilter from '@components/category-filter';
+import CategoryFilterChips from '@components/category-filter-chips';
+import CategorySort from '@components/category-sort';
+import ProductCard from '@components/product-card';
+import BlockContent from '@components/block-content';
 
 const Category = ({ data = {} }) => {
-  const { title, products, filter, sort, paginationLimit, noFilterResults } =
-    data
+  const {
+    title,
+    products,
+    filter,
+    sort,
+    paginationLimit,
+    noFilterResults,
+  } = data;
 
-  if (!products || products.length === 0) return null
+  if (!products || products.length === 0) return null;
 
-  const { isPageTransition } = useSiteContext()
+  const { isPageTransition } = useSiteContext();
 
-  const categoryItems = useRef([])
+  const categoryItems = useRef([]);
 
   const [hasPagination, setHasPagination] = useState(
     paginationLimit > 0 && products.length > paginationLimit
-  )
+  );
   const [currentCount, setCurrentCount] = useState(
     hasPagination ? paginationLimit : products.length
-  )
+  );
 
-  const filterGroups = filter.groups
+  const filterGroups = filter.groups || [];
 
   const [currentParams, setCurrentParams] = useParams([
     {
@@ -44,34 +56,35 @@ const Category = ({ data = {} }) => {
     },
     {
       name: 'sort',
-      value: sort?.options[0]?.slug,
+      value: sort?.options?.length ? sort.options[0]?.slug : null,
     },
-    ...filterGroups.map((g) => ({
+    ...filterGroups?.map((g) => ({
       name: g.slug,
       value: null,
     })),
-  ])
-  const previousParams = usePrevious(currentParams)
+  ]);
+  const previousParams = usePrevious(currentParams);
 
   // determine which params set to use
   const activeParams =
-    isPageTransition && previousParams ? previousParams : currentParams
+    isPageTransition && previousParams ? previousParams : currentParams;
 
   // calculate our sort
-  const activeSort = activeParams.find((filter) => filter.name === 'sort').value
+  const activeSort = activeParams.find((filter) => filter.name === 'sort')
+    .value;
 
   // calculate our filters
   const currentFilters = activeParams.filter(
     (f) => !['page', 'sort'].includes(f.name)
-  )
+  );
   const activeFilters = currentFilters.map((filter) => {
     const validOptions = filterGroups
       .find((g) => g.slug === filter.name)
-      ?.options.map((o) => o.slug)
+      ?.options.map((o) => o.slug);
 
     const currentOptions = Array.isArray(filter.value)
       ? filter.value
-      : filter.value?.split(',') || []
+      : filter.value?.split(',') || [];
 
     return {
       name: filter.name,
@@ -82,31 +95,33 @@ const Category = ({ data = {} }) => {
             .filter((f) => validOptions?.includes(f))
         ),
       ],
-    }
-  })
+    };
+  });
 
   // calculate total active filters
   const filtersTotal = activeFilters.reduce((acc, cur) => {
-    return Number(acc + cur.values.length)
-  }, 0)
+    return Number(acc + cur.values.length);
+  }, 0);
 
   // calculate our product order and pagination
-  const orderedProducts = useFilterAndSort(products, activeFilters, activeSort)
-  const paginatedProducts = [...orderedProducts.slice(0, currentCount)]
+  const orderedProducts = useFilterAndSort(products, activeFilters, activeSort);
+  const paginatedProducts = [...orderedProducts.slice(0, currentCount)];
 
   // handle filter + sort updates
   const updateParams = useCallback(
     (params) => {
       const newFilters = activeParams.map((filter) => {
-        const matchedParam = params?.find((p) => p.name === filter.name)
+        const matchedParam = params?.find((p) => p.name === filter.name);
 
-        return matchedParam ? { ...filter, value: matchedParam?.value } : filter
-      })
+        return matchedParam
+          ? { ...filter, value: matchedParam?.value }
+          : filter;
+      });
 
-      setCurrentParams(newFilters)
+      setCurrentParams(newFilters);
     },
     [activeParams]
-  )
+  );
 
   // handle load more
   const loadMore = useCallback(() => {
@@ -114,44 +129,44 @@ const Category = ({ data = {} }) => {
       currentCount + paginationLimit,
       1,
       orderedProducts.length
-    )
+    );
 
-    const newPage = Math.ceil(newCount / paginationLimit)
+    const newPage = Math.ceil(newCount / paginationLimit);
 
-    setCurrentCount(newCount)
-    updateParams([{ name: 'page', value: newPage > 1 ? `${newPage}` : null }])
-  }, [currentCount, orderedProducts, paginationLimit])
+    setCurrentCount(newCount);
+    updateParams([{ name: 'page', value: newPage > 1 ? `${newPage}` : null }]);
+  }, [currentCount, orderedProducts, paginationLimit]);
 
   // update pagination when the count or products change
   useEffect(() => {
-    const desiredPage = activeParams.find((p) => p.name === 'page').value
-    const maxPage = Math.ceil(orderedProducts.length / paginationLimit)
+    const desiredPage = activeParams.find((p) => p.name === 'page').value;
+    const maxPage = Math.ceil(orderedProducts.length / paginationLimit);
 
     const newCount =
       desiredPage > 1 && desiredPage <= maxPage
         ? clampRange(paginationLimit * desiredPage, 1, orderedProducts.length)
-        : null
+        : null;
 
     const pageProductIndex =
       newCount < orderedProducts?.length
         ? newCount - paginationLimit
-        : orderedProducts.length - 1
+        : orderedProducts.length - 1;
 
     if (newCount) {
-      setCurrentCount(newCount)
+      setCurrentCount(newCount);
       categoryItems.current[pageProductIndex]?.querySelector('[href]').focus({
         preventScroll: true,
-      })
+      });
     }
 
-    setHasPagination(currentCount < orderedProducts.length)
+    setHasPagination(currentCount < orderedProducts.length);
   }, [
     currentCount,
     orderedProducts,
     activeParams,
     paginationLimit,
     categoryItems,
-  ])
+  ]);
 
   return (
     <section className="category">
@@ -257,46 +272,46 @@ const Category = ({ data = {} }) => {
         )}
       </div>
     </section>
-  )
-}
+  );
+};
 
 const useFilterAndSort = (products, filters, sort) => {
   const filterCombos = useMemo(
     () =>
       cartesian(...filters.filter((f) => f.values.length).map((f) => f.values)),
     [filters]
-  )
+  );
 
   const filteredProducts = useMemo(
     () =>
       products.filter((product) => {
         return filterCombos.some((combo) => {
-          const productFilters = product.filters?.map((f) => f.slug)
-          const hasCombo = combo.every((x) => productFilters?.includes(x))
+          const productFilters = product.filters?.map((f) => f.slug);
+          const hasCombo = combo.every((x) => productFilters?.includes(x));
 
-          return hasCombo
-        })
+          return hasCombo;
+        });
       }),
     [filters]
-  )
+  );
 
   switch (sort) {
     case 'priceAsc':
-      return sortAsc(filteredProducts, 'price')
+      return sortAsc(filteredProducts, 'price');
     case 'priceDesc':
-      return sortDesc(filteredProducts, 'price')
+      return sortDesc(filteredProducts, 'price');
     case 'alphaAsc':
-      return sortAsc(filteredProducts, 'title')
+      return sortAsc(filteredProducts, 'title');
     case 'alphaDesc':
-      return sortDesc(filteredProducts, 'title')
+      return sortDesc(filteredProducts, 'title');
     case 'dateAsc':
-      return sortAsc(filteredProducts, 'publishDate')
+      return sortAsc(filteredProducts, 'publishDate');
     case 'dateDesc':
-      return sortDesc(filteredProducts, 'publishDate')
+      return sortDesc(filteredProducts, 'publishDate');
     case 'featured':
     default:
-      return filteredProducts
+      return filteredProducts;
   }
-}
+};
 
-export default Category
+export default Category;

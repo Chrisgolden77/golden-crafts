@@ -59,7 +59,7 @@ const Product = ({ data }) => {
           page={page}
           schema={getProductSchema(product, site)}
         >
-          {page.modules.map((module, key) => (
+          {page.modules?.map((module, key) => (
             <Module
               key={key}
               index={key}
