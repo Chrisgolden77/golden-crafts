@@ -100,7 +100,8 @@ export async function getStaticProps({ params, preview, previewData }) {
   return {
     props: {
       data: productData
-    }
+    },
+    revalidate: 10,
   }
 }
 

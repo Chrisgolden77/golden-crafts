@@ -1,31 +1,31 @@
-const sanityClient = require('@sanity/client')
+const sanityClient = require('@sanity/client');
 const client = sanityClient({
   dataset: process.env.SANITY_PROJECT_DATASET,
   projectId: process.env.SANITY_PROJECT_ID,
   useCdn: process.env.NODE_ENV === 'production',
   apiVersion: '2021-03-25',
-})
+});
 
 // see breakdown of code bloat
 const withBundleAnalyzer = require('@next/bundle-analyzer')({
   enabled: process.env.ANALYZE === 'true',
-})
+});
 
 // get redirects from Sanity for Vercel
 async function fetchSanityRedirects() {
   const data = await client.fetch(
     `*[_type == "redirect"]{ from, to, isPermanent }`
-  )
+  );
 
   const redirects = data.map((redirect) => {
     return {
       source: `/${redirect.from}`,
       destination: `/${redirect.to}`,
       permanent: redirect.isPermanent,
-    }
-  })
+    };
+  });
 
-  return redirects
+  return redirects;
 }
 
 module.exports = withBundleAnalyzer({
@@ -45,8 +45,11 @@ module.exports = withBundleAnalyzer({
     // Needed for SendGrid forms
     SENDGRID_API_KEY: process.env.SENDGRID_API_KEY,
   },
-  async redirects() {
-    const sanityRedirects = await fetchSanityRedirects()
-    return sanityRedirects
+  experimental: {
+    isrMemoryCacheSize: 0,
   },
-})
+  async redirects() {
+    const sanityRedirects = await fetchSanityRedirects();
+    return sanityRedirects;
+  },
+});

@@ -1,20 +1,20 @@
-import { getSanityClient } from '@lib/sanity';
-import * as queries from './queries';
+import { getSanityClient } from '@lib/sanity';;
+import * as queries from './queries';;
 
 // Fetch all dynamic docs
 export async function getAllDocSlugs(doc) {
   const data = await getSanityClient().fetch(
     `*[_type == "${doc}" && !(_id in [${queries.homeID}, ${queries.shopID}, ${queries.errorID}]) && wasDeleted != true && isDraft != true]{ slug }`
-  );
-  return data;
+  );;
+  return data;;
 }
 
 // Fetch all our page redirects
 export async function getAllRedirects() {
   const data = await getSanityClient().fetch(
     `*[_type == "redirect"]{ from, to }`
-  );
-  return data;
+  );;
+  return data;;
 }
 
 // Fetch a static page with our global data
@@ -24,11 +24,11 @@ export async function getStaticPage(pageData, preview) {
     "page": ${pageData},
     ${queries.site}
   }
-  `;
+  `;;
 
-  const data = await getSanityClient(preview).fetch(query);
+  const data = await getSanityClient(preview).fetch(query);;
 
-  return data;
+  return data;;
 }
 
 // Fetch a specific dynamic page with our global data
@@ -39,8 +39,8 @@ export async function getPage(slug, preview) {
   const query = `
     {
       "page": *[_type == "page" && slug.current in ${JSON.stringify(
-        slugs
-      )}] | order(_updatedAt desc)[0]{
+            slugs
+          )}] | order(_updatedAt desc)[0]{
         hasTransparentHeader,
         modules[]{
           ${queries.modules}
@@ -54,7 +54,7 @@ export async function getPage(slug, preview) {
   // console.log('page query ******', query);
   const data = await getSanityClient(preview).fetch(query);
 
-  return data;
+  return data;;
 }
 
 // Fetch a specific product with our global data
@@ -72,11 +72,11 @@ export async function getProduct(slug, preview) {
       },
       ${queries.site}
     }
-  `;
+  `;;
 
-  const data = await getSanityClient(preview).fetch(query);
+  const data = await getSanityClient(preview).fetch(query);;
 
-  return data;
+  return data;;
 }
 
 // Fetch a specific category with our global data
@@ -89,8 +89,8 @@ export async function getCategory(slug, preview) {
           ${queries.modules}
         },
         products[wasDeleted != true && isDraft != true${
-          preview?.active ? ' && _id in path("drafts.**")' : ''
-        }]->${queries.product},
+                preview?.active ? ' && _id in path("drafts.**")' : ''
+              }]->${queries.product},
         title,
         seo
       },
@@ -99,9 +99,9 @@ export async function getCategory(slug, preview) {
   `;
   console.log('CATEGORY QUERY: ', query);
 
-  const data = await getSanityClient(preview).fetch(query);
+  const data = await getSanityClient(preview).fetch(query);;
 
-  return data;
+  return data;;
 }
 
-export { queries };
+export { queries };;

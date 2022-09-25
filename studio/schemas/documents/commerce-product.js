@@ -99,7 +99,7 @@ export default {
       name: 'description',
       type: 'string',
       readOnly: true,
-      fieldset: 'commerce',
+      fieldset: 'commerce'
     },
     {
       title: 'Variant groups',

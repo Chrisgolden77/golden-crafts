@@ -1,13 +1,13 @@
-import React from 'react'
-import Error from 'next/error'
+import React from 'react';
+import Error from 'next/error';
 
-import { getStaticPage, queries } from '@data'
+import { getStaticPage, queries } from '@data';
 
-import Layout from '@components/layout'
-import { Module } from '@components/modules'
+import Layout from '@components/layout';
+import { Module } from '@components/modules';
 
 const Shop = ({ data }) => {
-  const { site, page } = data
+  const { site, page } = data;
 
   if (!page) {
     return (
@@ -15,7 +15,7 @@ const Shop = ({ data }) => {
         title={`"Shop Page" is not set in Sanity, or the page data is missing`}
         statusCode="Data Error"
       />
-    )
+    );
   }
 
   return (
@@ -29,8 +29,8 @@ const Shop = ({ data }) => {
         />
       ))}
     </Layout>
-  )
-}
+  );
+};
 
 export async function getStaticProps({ preview, previewData }) {
   const shopData = await getStaticPage(
@@ -42,8 +42,8 @@ export async function getStaticProps({ preview, previewData }) {
         ${queries.modules}
       },
       products[wasDeleted != true && isDraft != true${
-      preview?.active ? ' && _id in path("drafts.**")' : ''
-    }]->${queries.product},
+        preview?.active ? ' && _id in path("drafts.**")' : ''
+      }]->${queries.product},
       title,
       seo
     }
@@ -52,13 +52,14 @@ export async function getStaticProps({ preview, previewData }) {
       active: preview,
       token: previewData?.token,
     }
-  )
+  );
 
   return {
     props: {
       data: shopData,
     },
-  }
+    revalidate: 10,
+  };
 }
 
-export default Shop
+export default Shop;
