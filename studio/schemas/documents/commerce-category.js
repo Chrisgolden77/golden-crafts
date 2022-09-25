@@ -11,7 +11,7 @@ export default {
       name: 'title',
       title: 'Title',
       type: 'string',
-      readOnly: true,
+      readOnly: true
     },
     {
       title: 'Slug',
@@ -22,19 +22,19 @@ export default {
         source: 'title',
         maxLength: 96
       },
-      readOnly: true,
+      readOnly: true
     },
     {
       title: 'Description',
       name: 'description',
       type: 'string',
-      readOnly: true,
+      readOnly: true
     },
     {
       title: 'Category ID',
       name: 'categoryID',
       type: 'string',
-      readOnly: true,
+      readOnly: true
     },
     {
       title: 'Overlay header with transparency?',
@@ -67,8 +67,7 @@ export default {
           return categoryGrids.length === 1
             ? true
             : {
-                message:
-                  'You must have one "Category grid" module on the page',
+                message: 'You must have one "Category grid" module on the page',
                 paths: categoryGridItems
               }
         })
@@ -112,7 +111,8 @@ export default {
       slug: 'slug'
     },
     prepare({ title = 'Untitled', slug = null }) {
-      const path = `/shop/${slug}`
+      console.log('CATEGORY: ', slug);
+      const path = `/shop/${slug.current ?? slug}`
       return {
         title,
         subtitle: slug ? path : '(missing slug)'

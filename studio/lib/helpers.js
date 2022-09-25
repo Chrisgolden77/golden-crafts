@@ -48,6 +48,7 @@ export const getStaticRoute = name => {
 }
 
 export const getDynamicRoute = name => {
+  console.log('LINK NAME', name)
   switch (name) {
     case 'category':
       return 'shop'
