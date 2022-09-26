@@ -101,7 +101,6 @@ export default async function send(req, res) {
         permalink,
         inventory,
         sku,
-        ...rest
       },
     },
   } = req;
@@ -142,7 +141,6 @@ export default async function send(req, res) {
     inStock: (inventory?.managed && inventory.available > 0) || true,
     lowStock: (inventory?.managed && inventory.available <= 4) || false,
     values: productOptions,
-    ...rest,
   };
 
   /*  ------------------------------ */
