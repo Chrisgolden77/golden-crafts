@@ -7,7 +7,6 @@ import { Module } from '@components/modules';
 
 const CategoryPage = ({ data }) => {
   const { site, page } = data;
-  console.log('CATEGORY ', data);
   return (
     <Layout site={site} page={page}>
       {page.modules?.map((module, key) => (

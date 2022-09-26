@@ -35,12 +35,19 @@ export default async function send(req, res) {
   // Convert request stream into a readable JSON body
   const buffers = [];
   for await (const chunk of req) {
-      buffers.push(chunk);
+    buffers.push(chunk);
   }
   req.body = JSON.parse(Buffer.concat(buffers).toString());
 
   // Check that the handled events are supported
-  if (!['products.create', 'products.update', 'products.delete', 'test.webhook'].includes(req.body.event)) {
+  if (
+    ![
+      'products.create',
+      'products.update',
+      'products.delete',
+      'test.webhook',
+    ].includes(req.body.event)
+  ) {
     return res.status(422).json({
       method: req.method,
       error: 'The provided webhook event is not supported.',
@@ -67,7 +74,7 @@ export default async function send(req, res) {
   console.log('Webhook payload:', req.body);
 
   // Initiate Sanity transaction to perform the following chained mutations
-  let sanityTransaction = sanity.transaction()
+  let sanityTransaction = sanity.transaction();
 
   // Handle deleted products from Chec/Commerce.js
   if (req.body.event === 'products.delete' && req.body.model_ids?.length > 0) {
@@ -80,19 +87,24 @@ export default async function send(req, res) {
 
   // Handle products being created or updated
   // Extract the Commerce data from the webhook payload. The payloads are product responses.
-  const { body: { payload: {
-    id,
-    name,
-    description,
-    // Extract formatted_with_symbol price from the price object as we don't need
-    // the other price fields.
-    price: { formatted_with_symbol: price },
-    active,
-    variant_groups: variantGroups,
-    permalink,
-    inventory,
-    sku,
-  } } } = req;
+  const {
+    body: {
+      payload: {
+        id,
+        name,
+        description,
+        // Extract formatted_with_symbol price from the price object as we don't need
+        // the other price fields.
+        price: { formatted_with_symbol: price },
+        active,
+        variant_groups: variantGroups,
+        permalink,
+        inventory,
+        sku,
+        ...rest
+      },
+    },
+  } = req;
 
   /*  ------------------------------ */
   /*  Construct our product objects
@@ -103,18 +115,18 @@ export default async function send(req, res) {
   const product = {
     _type: 'product',
     _id: modelId,
-  }
+  };
 
   // Define product options if there is more than one variant group
   const productOptions =
     variantGroups?.length > 1
       ? variantGroups.map((group) => ({
-        _key: group.id,
-        _type: 'productOption',
-        name: group.name,
-        values: group.options.map((option) => option.name),
-      }
-  )) : [];
+          _key: group.id,
+          _type: 'productOption',
+          name: group.name,
+          values: group.options.map((option) => option.name),
+        }))
+      : [];
 
   // Define product fields
   const productFields = {
@@ -130,29 +142,34 @@ export default async function send(req, res) {
     inStock: (inventory?.managed && inventory.available > 0) || true,
     lowStock: (inventory?.managed && inventory.available <= 4) || false,
     values: productOptions,
+    ...rest,
   };
 
   /*  ------------------------------ */
   /*  Begin Sanity Product Sync
   /*  ------------------------------ */
 
-  console.log('Writing product to Sanity...')
+  console.log('Writing product to Sanity...');
 
   // Run chain mutations to write product to Sanity
 
   // Create product if doesn't exist
-  sanityTransaction = sanityTransaction.createIfNotExists(product)
+  sanityTransaction = sanityTransaction.createIfNotExists(product);
 
   // Unset options field first, to avoid patch set issues
-  sanityTransaction = sanityTransaction.patch(modelId, (patch) => patch.unset(['productOptions']))
+  sanityTransaction = sanityTransaction.patch(modelId, (patch) =>
+    patch.unset(['productOptions'])
+  );
 
   // Patch (update) product document with core commerce data
-  sanityTransaction = sanityTransaction.patch(modelId, (patch) => patch.set(productFields))
+  sanityTransaction = sanityTransaction.patch(modelId, (patch) =>
+    patch.set(productFields)
+  );
 
   // Patch (update) title & slug if none has been set
   sanityTransaction = sanityTransaction.patch(modelId, (patch) =>
     patch.setIfMissing({ title: name })
-  )
+  );
 
   // patch (update) productHero module if none has been set
   sanityTransaction = sanityTransaction.patch(modelId, (patch) =>
@@ -165,7 +182,7 @@ export default async function send(req, res) {
         },
       ],
     })
-  )
+  );
 
   const result = await sanityTransaction.commit();
 

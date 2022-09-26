@@ -30,7 +30,6 @@ export default {
     prepare({ title, pageType, pageSlug }) {
       const isStatic = getStaticRoute(pageType)
       const isDynamic = getDynamicRoute(pageType)
-      console.log("page type: ", isDynamic);
 
       return {
         title: title,

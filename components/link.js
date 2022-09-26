@@ -32,7 +32,6 @@ const Link = ({ link, children, ...rest }) => {
   } else {
     const isDynamic = getDynamicRoute(link.page?.type);
     const isHome = link.page?.isHome;
-    console.log('LINK PAGELINK', link.page);
     return (
       <NextLink
         href={
@@ -40,7 +39,9 @@ const Link = ({ link, children, ...rest }) => {
             ? '/'
             : isStatic !== false
             ? `/${isStatic}`
-            : `/${isDynamic ? `${isDynamic}/` : ''}${link.page?.slug.current ?? link.page?.slug}`
+            : `/${isDynamic ? `${isDynamic}/` : ''}${
+                link.page?.slug.current ?? link.page?.slug
+              }`
         }
         scroll={false}
       >

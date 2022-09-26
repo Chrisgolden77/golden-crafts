@@ -1,7 +1,9 @@
 import axios from 'axios';
 
 export default async function send(req, res) {
-  const { query: { id } } = req;
+  const {
+    query: { id },
+  } = req;
 
   const hasCommerce = process.env.NEXT_PUBLIC_CHEC_PUBLIC_KEY;
 
@@ -9,14 +11,14 @@ export default async function send(req, res) {
   if (!id) {
     return res.status(401).json({
       error: 'Product ID is required',
-    })
+    });
   }
 
   // Return error if Commerce API key is not provided
   if (!hasCommerce) {
     return res.status(401).json({
       error: 'Commerce API is not enabled',
-    })
+    });
   }
 
   const commerceConfig = {
@@ -29,22 +31,29 @@ export default async function send(req, res) {
     url: `https://${process.env.CHEC_API_URL}/v1/products/${id}`,
     method: 'GET',
     headers: commerceConfig,
-  }).then ((response) => {
-    return response.data;
-  }).catch(() => null );
+  })
+    .then((response) => {
+      return response.data;
+    })
+    .catch(() => null);
 
   // Return error if Commerce can't find product
   if (!commerceProduct) {
     return res.status(401).json({
       error: 'Product not found',
-    })
+    });
   }
-
   // Construct the product object
   const product = {
-    inStock: (inventory?.managed && inventory.available > 0) || true,
-    lowStock: (inventory?.managed && inventory.available <= 4) || false,
-  }
+    inStock:
+      (commerceProduct.inventory?.managed &&
+        commerceProduct.inventory.available > 0) ||
+      true,
+    lowStock:
+      (commerceProduct.inventory?.managed &&
+        commerceProduct.inventory.available <= 4) ||
+      false,
+  };
 
   // console.log('Product object with variants details', product);
 

@@ -35,7 +35,6 @@ export async function getStaticPage(pageData, preview) {
 export async function getPage(slug, preview) {
   const sanitizedSlug = slug.current ?? slug;
   const slugs = [`/${sanitizedSlug}`, sanitizedSlug, `/${sanitizedSlug}/`];
-  // console.log('SLUG FOR PAGE *** ', slug);
   const query = `
     {
       "page": *[_type == "page" && slug.current in ${JSON.stringify(
@@ -51,7 +50,6 @@ export async function getPage(slug, preview) {
       ${queries.site}
     }
     `;
-  // console.log('page query ******', query);
   const data = await getSanityClient(preview).fetch(query);
 
   return data;;
@@ -97,8 +95,6 @@ export async function getCategory(slug, preview) {
       ${queries.site}
     }
   `;
-  console.log('CATEGORY QUERY: ', query);
-
   const data = await getSanityClient(preview).fetch(query);;
 
   return data;;

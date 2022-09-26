@@ -111,7 +111,6 @@ export default {
       slug: 'slug'
     },
     prepare({ title = 'Untitled', slug = null }) {
-      console.log('CATEGORY: ', slug);
       const path = `/shop/${slug.current ?? slug}`
       return {
         title,
